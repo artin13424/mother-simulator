@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mother Simulator</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+        }
+
+        .game-container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #ffb6c1;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            max-width: 90%;
+        }
+
+        .game-container:hover {
+            transform: scale(1.02);
+        }
+
+        h1 {
+            font-size: 2em;
+            color: #ff6f91;
+        }
+
+        .cake {
+            width: 100px;
+            height: 100px;
+            background-image: url('cake.png');
+            background-size: cover;
+            margin: 20px auto;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .cake:active {
+            transform: scale(0.95);
+        }
+
+        #score {
+            font-weight: bold;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .upgrade-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #ff6f91;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .upgrade-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            background-color: #ff3b77;
+            transform: scale(1.05);
+        }
+
+        p {
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        .sign-in-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            padding: 20px;
+            border: 2px solid #ffb6c1;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .sign-in-container input {
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ffb6c1;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .sign-in-container button {
+            padding: 10px 20px;
+            background-color: #ff6f91;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .sign-in-container button:hover {
+            background-color: #ff3b77;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="sign-in-container" class="sign-in-container">
+        <h1>Mother Simulator</h1>
+        <p>Please sign in to play</p>
+        <input type="text" id="username" placeholder="Enter your name">
+        <button onclick="signIn()">Sign In</button>
+    </div>
+
+    <div id="game-container" class="game-container" style="display: none;">
+        <h1>Mother Simulator</h1>
+        <p>Click the cake to earn points!</p>
+        <div class="cake" id="cake"></div>
+        <p>Score: <span id="score">0</span></p>
+        <button id="upgrade-btn" class="upgrade-btn">Upgrade (Cost: 10)</button>
+        <p>Level: <span id="level">1</span></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            if (localStorage.getItem('username')) {
+                document.getElementById('sign-in-container').style.display = 'none';
+                document.getElementById('game-container').style.display = 'block';
+                startGame();
+            }
+        });
+
+        function signIn() {
+            const username = document.getElementById('username').value;
+            if (username.trim() !== '') {
+                localStorage.setItem('username', username);
+                document.getElementById('sign-in-container').style.display = 'none';
+                document.getElementById('game-container').style.display = 'block';
+                startGame();
+            } else {
+                alert('Please enter your name');
+            }
+        }
+
+        function startGame() {
+            let score = 0;
+            let pointsPerClick = 1;
+            let level = 1;
+            let upgradeCost = 10;
+            
+            const cake = document.getElementById('cake');
+            const scoreDisplay = document.getElementById('score');
+            const upgradeBtn = document.getElementById('upgrade-btn');
+            const levelDisplay = document.getElementById('level');
+
+            cake.addEventListener('click', () => {
+                score += pointsPerClick;
+                scoreDisplay.textContent = score;
+                updateUpgradeButton();
+            });
+
+            upgradeBtn.addEventListener('click', () => {
+                if (score >= upgradeCost) {
+                    score -= upgradeCost;
+                    level++;
+                    pointsPerClick *= 2;
+                    upgradeCost *= 2;
+                    scoreDisplay.textContent = score;
+                    levelDisplay.textContent = level;
+                    upgradeBtn.textContent = `Upgrade (Cost: ${upgradeCost})`;
+                    updateUpgradeButton();
+                }
+            });
+
+            function updateUpgradeButton() {
+                upgradeBtn.disabled = score < upgradeCost || level >= 10;
+                if (level >= 10) {
+                    upgradeBtn.textContent = "Max Level Reached";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
